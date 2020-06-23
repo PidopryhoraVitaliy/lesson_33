@@ -37,7 +37,7 @@ const movieDB = {
         "Лига справедливости 2",
         "Ла-ла лэнд",
         "Одержимость",
-        "Скотт Пилигрим против..."
+        "Скотт Пилигрим против всех"
     ]
 };
 
@@ -51,7 +51,8 @@ document.querySelectorAll('.promo__bg').forEach(
 	elem => elem.style.backgroundImage = 'url(./img/bg.jpg)'
 );
 
-const list = document.querySelector('.promo__interactive-list');
+const	list = document.querySelector('.promo__interactive-list'),
+		checkboxFavorite = document.querySelector('[type="checkbox"]');
 
 showMovies(list, movieDB.movies);
 
@@ -66,6 +67,8 @@ function clearMovies(list) {
 
 function showMovies(list, movies) {
 	
+	const maxfilmNameLength = 21;
+	
 	clearMovies(list);
 	
 	movies.sort();
@@ -74,8 +77,13 @@ function showMovies(list, movies) {
 		
 		//console.log(index + 1, item);
 		
+		let shortFilmName = item;
+		if (shortFilmName.length > maxfilmNameLength) {
+			shortFilmName = shortFilmName.substr(0, maxfilmNameLength) + '...';
+		};
+		
 		list.innerHTML += `
-			<li class="promo__interactive-item">${index + 1} ${item}
+			<li class="promo__interactive-item" data-film-name="${item}">${index + 1} ${shortFilmName}
 				<div class="delete"></div>
 			</li>
 		`;
@@ -93,9 +101,21 @@ function showMovies(list, movies) {
 	
 	document.querySelectorAll('.delete').forEach(
 		elem => elem.addEventListener('click', (event) => {
-			const li = event.target.parentElement;
-			console.log(li);
+			
+			const	li = event.target.parentElement,
+					filmName = li.dataset.filmName,
+					filmIndex = movieDB.movies.indexOf(filmName);
+					
+			if (filmIndex == -1) {
+				console.log('error: ');
+				console.log('filmName: ' + filmName);
+				console.log('filmIndex: ' + filmIndex);
+				return;
+			};
+					
+			movieDB.movies.splice(filmIndex, 1);
 			showMovies(list, movieDB.movies);
+			
 		})
 	);
 
@@ -105,19 +125,19 @@ document.querySelector('button').addEventListener('click', (event) => {
 	
 	event.preventDefault();
 	
-	const	maxfilmNameLength = 21,
-			inputElem = document.querySelector('.adding__input');
-	let		filmName = inputElem.value;
+	const	inputElem = document.querySelector('.adding__input'),
+			filmName = inputElem.value,
+			favorite = checkboxFavorite.checked;
 	
 	if (filmName == '') {
 		alert('Введите название фильма!');
 		return;
 	};
 	
-	if (filmName.length > maxfilmNameLength) {
-		filmName = filmName.substr(0, maxfilmNameLength-1) + '...';
+	if (favorite) {
+		console.log('Добавляем любимый фильм!');
 	};
-	
+
 	movieDB.movies.push(filmName);
 	inputElem.value = '';
 	
